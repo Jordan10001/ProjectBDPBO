@@ -1,3 +1,11 @@
+--ROLE
+INSERT INTO Role (role_id, role_name) VALUES ('A', 'Admin');
+INSERT INTO Role (role_id, role_name) VALUES ('K', 'Kepala Sekolah');
+INSERT INTO Role (role_id, role_name) VALUES ('G', 'Guru');
+INSERT INTO Role (role_id, role_name) VALUES ('W', 'Wali Kelas');
+INSERT INTO Role (role_id, role_name) VALUES ('S', 'Siswa');
+
+
 -- Insert a user for Admin role
 INSERT INTO Users (user_id, username, password, NIS_NIP, nama, gender, alamat, email, nomer_hp, Role_role_id)
 VALUES ('A250001', 'aaron25', 'ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f', 'NIP001', 'Aaron Jordan', 'L', 'Jl. Admin No. 1', 'admin@example.com', '081234567890', 'A');
@@ -18,12 +26,6 @@ VALUES ('W250001', 'wali', 'ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c
 INSERT INTO Users (user_id, username, password, NIS_NIP, nama, gender, alamat, email, nomer_hp, Role_role_id)
 VALUES ('S250001', 'siswa', 'ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f', 'NIS001', 'Siswa Name', 'L', 'Jl. Siswa No. 5', 'siswa@example.com', '081234567894', 'S');
 
---ROLE
-INSERT INTO Role (role_id, role_name) VALUES ('A', 'Admin');
-INSERT INTO Role (role_id, role_name) VALUES ('K', 'Kepala Sekolah');
-INSERT INTO Role (role_id, role_name) VALUES ('G', 'Guru');
-INSERT INTO Role (role_id, role_name) VALUES ('W', 'Wali Kelas');
-INSERT INTO Role (role_id, role_name) VALUES ('S', 'Siswa');
 
 
 

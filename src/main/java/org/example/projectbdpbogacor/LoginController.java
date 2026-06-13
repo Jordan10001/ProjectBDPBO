@@ -15,6 +15,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import javafx.application.Platform;
 
 public class LoginController {
 
@@ -62,13 +63,13 @@ public class LoginController {
     boolean verifyCredentials(String username, String password, String roleName) throws SQLException {
         String roleId = getRoleIdFromRoleName(roleName); // Get the single-character role ID
         if (roleId == null) {
-            AlertClass.ErrorAlert("Login Error", "Invalid Role", "The selected role is not recognized.");
+            Platform.runLater(() -> AlertClass.ErrorAlert("Login Error", "Invalid Role", "The selected role is not recognized."));
             return false;
         }
 
         try (Connection con = DBS.getConnection()) {
             if (con == null) {
-                AlertClass.ErrorAlert("Connection Error", "Database Connection Failed", "Could not establish a connection to the database.");
+                Platform.runLater(() -> AlertClass.ErrorAlert("Connection Error", "Database Connection Failed", "Could not establish a connection to the database."));
                 return false;
             }
             String sql = "SELECT user_id, password FROM Users WHERE Username = ? AND Role_role_id = ?";
@@ -87,7 +88,7 @@ public class LoginController {
                 }
             }
         } catch (SQLException e) {
-            AlertClass.ErrorAlert("Database Error", "Query Failed", "An error occurred while querying the database: " + e.getMessage());
+            Platform.runLater(() -> AlertClass.ErrorAlert("Database Error", "Query Failed", "An error occurred while querying the database: " + e.getMessage()));
             e.printStackTrace();
         }
         return false;
@@ -116,52 +117,61 @@ public class LoginController {
             return;
         }
 
-        try {
-            if (verifyCredentials(username, password, role)) { // Pass the full role name
-                HelloApplication app = HelloApplication.getInstance();
-                app.setLoggedInUserId(this.userId);
-                app.setLoggedInUserRole(role); // Store the full role name in HelloApplication for display/logic
+        new Thread(() -> {
+            try {
+                boolean verified = verifyCredentials(username, password, role);
+                Platform.runLater(() -> {
+                    if (verified) { // Pass the full role name
+                        HelloApplication app = HelloApplication.getInstance();
+                        app.setLoggedInUserId(this.userId);
+                        app.setLoggedInUserRole(role); // Store the full role name in HelloApplication for display/logic
 
-                String fxmlFile = "";
-                String title = "";
-                int sceneWidth = 1300;
-                int sceneHeight = 700;
+                        String fxmlFile = "";
+                        String title = "";
+                        int sceneWidth = 1300;
+                        int sceneHeight = 700;
 
-                switch (role) {
-                    case "Admin":
-                        fxmlFile = "/org/example/projectbdpbogacor/admin-dashboard-view.fxml";
-                        title = "Admin Dashboard";
-                        break;
-                    case "Kepala Sekolah":
-                        fxmlFile = "/org/example/projectbdpbogacor/kepala-dashboard-view.fxml";
-                        title = "Kepala Sekolah Dashboard";
-                        break;
-                    case "Guru":
-                        fxmlFile = "/org/example/projectbdpbogacor/guru-dashboard-view.fxml";
-                        title = "Guru Dashboard";
-                        break;
-                    case "Wali Kelas":
-                        fxmlFile = "/org/example/projectbdpbogacor/wali-dashboard-view.fxml";
-                        title = "Wali Kelas Dashboard";
-                        break;
-                    case "Siswa":
-                        fxmlFile = "/org/example/projectbdpbogacor/siswa-dashboard-view.fxml";
-                        title = "Siswa Dashboard";
-                        break;
-                    default:
-                        AlertClass.ErrorAlert("Login Error", "Invalid Role", "The selected role does not have a defined dashboard.");
-                        return;
-                }
-                app.changeScene(fxmlFile, title, sceneWidth, sceneHeight);
-            } else {
-                AlertClass.ErrorAlert("Login Failed", "Invalid Credentials", "Please check your username, password, dan role.");
+                        switch (role) {
+                            case "Admin":
+                                fxmlFile = "/org/example/projectbdpbogacor/admin-dashboard-view.fxml";
+                                title = "Admin Dashboard";
+                                break;
+                            case "Kepala Sekolah":
+                                fxmlFile = "/org/example/projectbdpbogacor/kepala-dashboard-view.fxml";
+                                title = "Kepala Sekolah Dashboard";
+                                break;
+                            case "Guru":
+                                fxmlFile = "/org/example/projectbdpbogacor/guru-dashboard-view.fxml";
+                                title = "Guru Dashboard";
+                                break;
+                            case "Wali Kelas":
+                                fxmlFile = "/org/example/projectbdpbogacor/wali-dashboard-view.fxml";
+                                title = "Wali Kelas Dashboard";
+                                break;
+                            case "Siswa":
+                                fxmlFile = "/org/example/projectbdpbogacor/siswa-dashboard-view.fxml";
+                                title = "Siswa Dashboard";
+                                break;
+                            default:
+                                AlertClass.ErrorAlert("Login Error", "Invalid Role", "The selected role does not have a defined dashboard.");
+                                return;
+                        }
+                        try {
+                            app.changeScene(fxmlFile, title, sceneWidth, sceneHeight);
+                        } catch (IOException e) {
+                            AlertClass.ErrorAlert("Error Loading View", "Could not load dashboard", "An error occurred while loading the dashboard: " + e.getMessage());
+                            e.printStackTrace();
+                        }
+                    } else {
+                        AlertClass.ErrorAlert("Login Failed", "Invalid Credentials", "Please check your username, password, dan role.");
+                    }
+                });
+            } catch (SQLException e) {
+                Platform.runLater(() -> {
+                    AlertClass.ErrorAlert("Database Error", "Login Failed", "An error occurred during login: " + e.getMessage());
+                });
+                e.printStackTrace();
             }
-        } catch (SQLException e) {
-            AlertClass.ErrorAlert("Database Error", "Login Failed", "An error occurred during login: " + e.getMessage());
-            e.printStackTrace();
-        } catch (IOException e) {
-            AlertClass.ErrorAlert("Error Loading View", "Could not load dashboard", "An error occurred while loading the dashboard: " + e.getMessage());
-            e.printStackTrace();
-        }
+        }).start();
     }
 }
