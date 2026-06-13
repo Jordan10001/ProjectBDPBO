@@ -1,12 +1,4 @@
 # Project BDPBO
-
-## Team Members
-| **Name**           | Github                              | NRP               |
-|-------------------|------------------------------------|------------------|
-| Aaron J.           |                                    |                  |
-| Mario J.           |                                    |                  |
-| Farrel I.          |                                    |                  |
-
 ## Default Users Password
 All default users in the SQL script have the password: **`12345678`**
 
